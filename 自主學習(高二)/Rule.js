@@ -14,39 +14,41 @@ const rotateButton = document.getElementById("rotate-button");//連結按鈕
 let isPaused = false; //暫停要素
 
 const ROW = 20;//行
-const COL = COLUMN = 10;//列
-const SQ = squareSize = 20;//每個方格的邊長
-const VACANT = "WHITE"; // 空值方格顏色
+const COLUMN = 10;//列
+const square_side = 20;//每個方格的邊長
+const NONE = "WHITE"; // 空值方格顏色
 
-cvs.width = COL * SQ; //總共的寬度：列數＊每個方格的邊長
-cvs.height = ROW * SQ;//總共的長度：行數＊每個方格的邊長
-
-// 畫每個方格
-function draw_square(x, y, color) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x * SQ, y * SQ, SQ, SQ);
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "white";
-    ctx.strokeRect(x * SQ + 0.5, y * SQ + 0.5, SQ, SQ);
-}
-
-// 畫遊戲執行區域
-function draw_board() {
-    for (r = 0; r < ROW; r++) {
-        for (c = 0; c < COL; c++) {
-            draw_square(c, r, board[r][c]);
-        }
-    }
-}
+cvs.width = COLUMN * square_side; //總共的寬度：列數＊每個方格的邊長
+cvs.height = ROW * square_side;//總共的長度：行數＊每個方格的邊長
 
 // 創造遊戲執行區域的二維陣列
 let board = [];
 for (r = 0; r < ROW; r++) {
     board[r] = [];
-    for (c = 0; c < COL; c++) {
-        board[r][c] = VACANT;
+    for (c = 0; c < COLUMN; c++) {
+        board[r][c] = NONE;
     }
 }
+
+// 畫每個方格
+function draw_square(x, y, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x * square_side, y * square_side, square_side, square_side);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "white";
+    ctx.strokeRect(x * square_side + 0.5, y * square_side + 0.5, square_side, square_side);
+}
+
+// 畫遊戲執行區域
+function draw_board() {
+    for (r = 0; r < ROW; r++) {
+        for (c = 0; c < COLUMN; c++) {
+            draw_square(c, r, board[r][c]);
+        }
+    }
+}
+
+
 
 draw_board();
 
@@ -61,7 +63,7 @@ const PIECES =
         [T, "rgb(200, 242, 255)"],   // Macaron Light Blue
         [Z, "rgb(186, 177, 214)"],   // Macaron Purple
 
-        //困難模式，由五個方格組成的
+        //跳脫傳統模式，由五個方格組成的
         [U, "rgb(255, 209, 220)"],   // Macaron Light Pink
         [Q, "rgb(167, 219, 216)"],   // Macaron Aqua
         [P, "rgb(255, 219, 172)"],   // Macaron Peach
@@ -95,11 +97,11 @@ function random_piece() {
 
 let p = random_piece();
 
-function Piece(tetromino, color) {
-    this.tetromino = tetromino;//類別
+function Piece(blocks, color) {
+    this.blocks = blocks;//類別
     this.color = color;
-    this.rotation_count = 0; //轉轉轉
-    this.activeTetromino = this.tetromino[this.rotation_count];
+    this.rotation_cnt = 0; 
+    this.active_blocks = this.blocks[this.rotation_cnt];
     // 開始生成點位置，二維陣列
     this.x = 3;
     this.y = -2;
@@ -107,10 +109,10 @@ function Piece(tetromino, color) {
 
 // 填充顏色
 Piece.prototype.fill = function (color) {
-    for (r = 0; r < this.activeTetromino.length; r++) {
-        for (c = 0; c < this.activeTetromino.length; c++) {
+    for (r = 0; r < this.active_blocks.length; r++) {
+        for (c = 0; c < this.active_blocks.length; c++) {
             // 我們只填充該值＝1的
-            if (this.activeTetromino[r][c]) {
+            if (this.active_blocks[r][c]) {
                 draw_square(this.x + c, this.y + r, color);
             }
         }
@@ -124,12 +126,12 @@ Piece.prototype.draw = function () {
 
 // 清除方塊
 Piece.prototype.unDraw = function () {
-    this.fill(VACANT);
+    this.fill(NONE);
 }
 
 // 方塊下降
 Piece.prototype.moveDown = function () {
-    if (!this.collision(0, 1, this.activeTetromino)) {  //(x變化量, y變化量, this.activeTetromino)。下方無碰壁
+    if (!this.detect_wall(0, 1, this.active_blocks)) {  //(x變化量, y變化量, this.active_blocks)。下方無碰壁
         this.unDraw();
         this.y++;
         this.draw();
@@ -144,7 +146,7 @@ Piece.prototype.moveDown = function () {
 
 // 方塊右移
 Piece.prototype.moveRight = function () {
-    if (!this.collision(1, 0, this.activeTetromino)) {//右方無碰壁
+    if (!this.detect_wall(1, 0, this.active_blocks)) {//右方無碰壁
         this.unDraw();
         this.x++;
         this.draw();
@@ -155,7 +157,7 @@ Piece.prototype.moveRight = function () {
 
 // 方塊左移
 Piece.prototype.moveLeft = function () {
-    if (!this.collision(-1, 0, this.activeTetromino)) {
+    if (!this.detect_wall(-1, 0, this.active_blocks)) {
         this.unDraw();
         this.x--;
         this.draw();
@@ -166,11 +168,11 @@ Piece.prototype.moveLeft = function () {
 
 // 方塊旋轉
 Piece.prototype.rotate = function () {
-    let nextPattern = this.tetromino[(this.rotation_count + 1) % this.tetromino.length];//取陣列
+    let nextPattern = this.blocks[(this.rotation_cnt + 1) % this.blocks.length];
     let kick = 0;
 
-    if (this.collision(0, 0, nextPattern)) {
-        if (this.x > COL / 2) {
+    if (this.detect_wall(0, 0, nextPattern)) {
+        if (this.x > COLUMN / 2) {
             kick = -1;
         }
         else {
@@ -178,15 +180,15 @@ Piece.prototype.rotate = function () {
         }
     }
 
-    if (!this.collision(kick, 0, nextPattern)) {
+    if (!this.detect_wall(kick, 0, nextPattern)) {
         this.unDraw();
         this.x += kick;
-        this.rotation_count = (this.rotation_count + 1) % this.tetromino.length;
-        this.activeTetromino = this.tetromino[this.rotation_count];
+        this.rotation_cnt = (this.rotation_cnt + 1) % this.blocks.length;
+        this.active_blocks = this.blocks[this.rotation_cnt];
         this.draw();
 
         // 如果轉的時候下面空的也下移
-        if (!this.collision(0, 1, this.activeTetromino)) {
+        if (!this.detect_wall(0, 1, this.active_blocks)) {
             this.unDraw();
             this.y++;
             this.draw();
@@ -194,11 +196,12 @@ Piece.prototype.rotate = function () {
     }
 }
 
+
 Piece.prototype.lock = function () {
-    for (r = 0; r < this.activeTetromino.length; r++) {
-        for (c = 0; c < this.activeTetromino.length; c++) {
+    for (r = 0; r < this.active_blocks.length; r++) {
+        for (c = 0; c < this.active_blocks.length; c++) {
             // 白的不鎖定
-            if (!this.activeTetromino[r][c]) {
+            if (!this.active_blocks[r][c]) {
                 continue;
             }
             // 觸頂遊戲結束
@@ -214,20 +217,20 @@ Piece.prototype.lock = function () {
     // 刪除行
     for (r = 0; r < ROW; r++) {
         let isRowFull = true;
-        for (c = 0; c < COL; c++) {
-            isRowFull = isRowFull && (board[r][c] != VACANT);
+        for (c = 0; c < COLUMN; c++) {
+            isRowFull = isRowFull && (board[r][c] != NONE);
         }
         if (isRowFull) {
-            // 如果那一列都不是VACANT
+            // 如果那一列都不是NONE
             // 將上方所有的方塊下移
             for (y = r; y > 1; y--) {
-                for (c = 0; c < COL; c++) {
+                for (c = 0; c < COLUMN; c++) {
                     board[y][c] = board[y - 1][c];
                 }
             }
             //下移後那一行變白
-            for (c = 0; c < COL; c++) {
-                board[0][c] = VACANT;
+            for (c = 0; c < COLUMN; c++) {
+                board[0][c] = NONE;
             }
             // 變更分數等級等等
             score += 10;
@@ -246,7 +249,7 @@ Piece.prototype.lock = function () {
 }
 
 // 碰撞判定
-Piece.prototype.collision = function (x, y, piece) {
+Piece.prototype.detect_wall = function (x, y, piece) {
     for (r = 0; r < piece.length; r++) {
         for (c = 0; c < piece.length; c++) {
             // 如果是空值，那繼續
@@ -258,7 +261,7 @@ Piece.prototype.collision = function (x, y, piece) {
             let newY = this.y + r + y;
 
             // 判定邊界
-            if (newX < 0 || newX >= COL || newY >= ROW) {
+            if (newX < 0 || newX >= COLUMN || newY >= ROW) {
                 return true;
             }
             // 代表疊得過高，超越上方邊界
@@ -266,7 +269,7 @@ Piece.prototype.collision = function (x, y, piece) {
                 continue;
             }
             // 旋轉的地方是空的
-            if (board[newY][newX] != VACANT) {
+            if (board[newY][newX] != NONE) {
                 return true;
             }
         }
