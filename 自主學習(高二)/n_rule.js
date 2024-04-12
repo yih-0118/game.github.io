@@ -1,6 +1,6 @@
 // 取得畫布和繪製環境的物件
-const cvs = document.getElementById("tetris");
-const ctx = tetris.getContext("2d");
+const Canva = document.getElementById("tetris");
+const Block = tetris.getContext("2d");
 // 取得用於顯示分數和等級的元素
 const scoreElement = document.getElementById("score");
 const levelElement = document.getElementById("level");
@@ -23,16 +23,16 @@ const square_size = 20; // 方塊大小(像素)
 const initial_color = "WHITE"; // 空白方塊的顏色
 
 // 設定畫布大小
-cvs.width = column * square_size;
-cvs.height = row * square_size;
+Canva.width = column * square_size;
+Canva.height = row * square_size;
 
 // 繪製單個方塊
 function draw_square(x, y, color) {
-    ctx.fillStyle = color; // 設定填充顏色
-    ctx.fillRect(x * square_size, y * square_size, square_size, square_size); // 繪製實心方塊
-    ctx.lineWidth = 1; // 設定線條寬度
-    ctx.strokeStyle = "white"; // 設定線條顏色
-    ctx.strokeRect(x * square_size + 0.5, y * square_size + 0.5, square_size, square_size); // 繪製方塊邊框
+    Block.fillStyle = color; // 設定填充顏色
+    Block.fillRect(x * square_size, y * square_size, square_size, square_size); // 繪製實心方塊
+    Block.lineWidth = 1; // 設定線條寬度
+    Block.strokeStyle = "white"; // 設定線條顏色
+    Block.strokeRect(x * square_size + 0.5, y * square_size + 0.5, square_size, square_size); // 繪製方塊邊框
 }
 
 // 繪製整個棋盤
@@ -147,7 +147,7 @@ this_piece.prototype.get_down = function () {
 }
 
 // 方塊右移一格
-this_piece.prototype.turn_rigjt = function () {
+this_piece.prototype.turn_right = function () {
     if (!this.detect_wall(1, 0, this.active_piece)) { // 檢查右移是否會發生碰撞
         this.un_draw(); // 清除當前方塊
         this.x++; // 右移一格
@@ -269,16 +269,16 @@ this_piece.prototype.detect_wall = function (x, y, this_piece) {
 }
 
 // 監聽鍵盤事件
-document.addEventListener("keydown", use_ketboard_to_control_piece);
+document.addEventListener("keydown", use_keyboard_to_control_piece);
 
 // 使用鍵盤控制方塊
-function use_ketboard_to_control_piece(event) {
+function use_keyboard_to_control_piece(event) {
     if (event.keyCode == 37) { // 左移鍵
         now_piece.turn_left(); // 方塊左移一格
     } else if (event.keyCode == 38) { // 上移鍵
         now_piece.rotate(); // 旋轉方塊
     } else if (event.keyCode == 39) { // 右移鍵
-        now_piece.turn_rigjt(); // 方塊右移一格
+        now_piece.turn_right(); // 方塊右移一格
     } else if (event.keyCode == 40) { // 下移鍵
         get_down = true; // 標記需要下移方塊
     }
@@ -298,7 +298,7 @@ move_left_button.addEventListener("click", () => {
 });
 
 move_right_button.addEventListener("click", () => {
-    now_piece.turn_rigjt(); // 方塊右移一格
+    now_piece.turn_right(); // 方塊右移一格
 });
 
 pause_button.addEventListener("click", () => {
@@ -337,7 +337,7 @@ function drop() {
 
     if (get_down) { // 如果需要下移方塊
         now_piece.get_down(); // 下移方塊
-        get_down = false; 
+        get_down = false;
     }
 
     if (!game_over) { // 如果遊戲未結束
