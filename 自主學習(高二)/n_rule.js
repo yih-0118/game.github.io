@@ -89,11 +89,11 @@ let score = 0; // 初始分數
 // 隨機生成一個新的方塊實例
 function random_piece() {
     let r; // 用於存放隨機索引
-    if (level < 8) { // 如果等級小於8
+    if (level < 2) { // 如果等級小於8
         r = Math.floor(Math.random() * 7); // 隨機索引範圍為0-6
         return new this_piece(pieces[r][0], pieces[r][1]); // 生成新方塊實例
     } else { // 如果等級大於等於8
-        r = Math.floor(Math.random() * hardmode); // 隨機索引範圍為0到hardmode-1
+        r = Math.floor(Math.random() * 22); // 隨機索引範圍為0到hardmode-1
         // r = Math.floor(Math.random() * 7); // 隨機索引範圍為0-6
 
         return new this_piece(pieces[r][0], pieces[r][1]); // 生成新方塊實例
