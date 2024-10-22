@@ -77,7 +77,7 @@ function random_piece() {
         r = Math.floor(Math.random() * 7); // 隨機索引範圍為0-6
         return new this_piece(pieces[r][0], pieces[r][1]); // 生成新方塊實例
     } else { // 如果等級大於等於8
-        r = Math.floor(Math.random() * 22); // 隨機索引範圍為0到hardmode-1
+        r = Math.floor(Math.random() * 7); // 隨機索引範圍為0到hardmode-1
         // r = Math.floor(Math.random() * 7); // 隨機索引範圍為0-6
 
         return new this_piece(pieces[r][0], pieces[r][1]); // 生成新方塊實例
