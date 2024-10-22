@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <html lang="cn">
+    <title>俄羅斯方塊</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <link rel="stylesheet" href="r_index.css">
+</head>
+
+<body>
+    <div class="button-row">
+        <button class="button" id="restart-button" style="margin-top: 10%;"><i class="fas fa-redo"></i></button>
+        </div>
+    <div class="button-row">
+    <button class="button" id="pause-button"><i class="fas fa-pause"></i></button>
+    </div>
+    <div id="tetris-container">
+        <canvas id="tetris" width="150" height="300"></canvas>
+    </div>
+
+    <div id="score-panel">
+        <div class="score-panel-item" id="score-container">
+            Score: <span id="score">0</span>
+        </div>
+        <div class="score-panel-item" id="level-container">
+            Level: <span id="level">1</span>
+        </div>
+    </div>
+
+    <div id="button-container">
+        <div class="button-row">
+            <button class="button" id="move-left-button">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+
+            <button class="button" id="rotate-button">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+
+            <button class="button" id="move-right-button">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <div class="button-row">
+            <button class="button" id="move-down-button"><i class="fas fa-arrow-down"></i></button>
+        </div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <!-- <h2><u>資源</u></h2>
+        <ul>
+            <li><a href="https://github.com/yih-0118/mlsh-vocabulary">Github</a></li>
+        </ul>
+        <ul>
+            <li><a href="https://hackmd.io/@yih0118/SyE19pChp">單字卡介紹</a></li>
+        </ul> -->
+        <h2><u>排行榜</u></h2>
+        <div id="mostUsedChapters"></div>
+
+
+
+    </div>
+
+    <div class="menu-icon" id="menuIcon">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+</body>
+
+
+    <script src="Fang's Cube.js"></script>
+    <script src="r_rule.js"></script>
+    <script src="custom.js"></script>
+    <script>
+
+        const rotate_button = document.getElementById("rotate-button");
+        const move_left_button = document.getElementById("move-left-button");
+        const move_right_button = document.getElementById("move-right-button");
+        const move_down_button = document.getElementById("move-down-button");
+        const pause_button = document.getElementById("pause-button");
+        const restart_button = document.getElementById("restart-button");
+        let is_paused = false;
+
+        pause_button.addEventListener("click", () => {
+            if (is_paused) {
+                is_paused = false;
+                drop();
+                pause_button.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                is_paused = true;
+                pause_button.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        });
+
+        restart_button.addEventListener("click", () => {
+            is_paused = false;
+            p = random_piece();
+            board = create_board();
+            score = 0;
+            hardmode = 8;
+            levelElement.innerHTML = hardmode;
+            scoreElement.innerHTML = score;
+            pause_button.innerHTML = '<i class="fas fa-pause"></i>';
+            drop();
+            gameOver = false;
+            gameOverMessage.style.display = 'none';
+        });
+
+        rotate_button.addEventListener("click", () => {
+            p.rotate();
+            dropStart = Date.now();
+        });
+
+        move_left_button.addEventListener("click", () => {
+            p.moveLeft();
+            dropStart = Date.now();
+        });
+
+        move_right_button.addEventListener("click", () => {
+            p.moveRight();
+            dropStart = Date.now();
+        });
+
+        move_down_button.addEventListener("click", () => {
+            p.moveDown();
+        });
+
+    </script>
+
+</html>
