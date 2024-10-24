@@ -65,6 +65,7 @@ const pieces = [
     [S, "rgb(235, 174, 149)"], // 馬卡龍橙
     [T, "rgb(200, 242, 255)"], // 馬卡龍淺藍
     [Z, "rgb(186, 177, 214)"], // 馬卡龍紫
+    [na, "rgb(226,95,104)"]
 ];
 let level = 1; // 初始等級
 let hardmode = 8; // 困難模式解鎖的方塊種類數量
@@ -74,10 +75,10 @@ var score = 0; // 初始分數
 function random_piece() {
     let r; // 用於存放隨機索引
     if (level < 2) { // 如果等級小於8
-        r = Math.floor(Math.random() * 7); // 隨機索引範圍為0-6
+        r = Math.floor(Math.random() * 8); // 隨機索引範圍為0-6
         return new this_piece(pieces[r][0], pieces[r][1]); // 生成新方塊實例
     } else { // 如果等級大於等於8
-        r = Math.floor(Math.random() * 7); // 隨機索引範圍為0到hardmode-1
+        r = Math.floor(Math.random() * 8); // 隨機索引範圍為0到hardmode-1
         // r = Math.floor(Math.random() * 7); // 隨機索引範圍為0-6
 
         return new this_piece(pieces[r][0], pieces[r][1]); // 生成新方塊實例
